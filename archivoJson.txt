@@ -1,0 +1,3 @@
+queso,107.0
+salame,45.0
+caramelo,2.0
