@@ -1,227 +1,75 @@
-# MAQUINASNACKS
-codigo basico donde implementamos permanencia en archivos,donde no buscamos mas complejidad que implementar esto
-🥨 Máquina de Snacks – Arquitectura Multicapa con Persistencia en Archivo
-📌 Descripción
+# Máquina de Snacks en Java
 
-Proyecto de práctica en Java aplicando:
+Aplicación de consola desarrollada en Java para gestionar una máquina de snacks, aplicando separación por capas, programación contra interfaces y persistencia en archivo plano.
 
-Arquitectura en 3 capas (Dominio – Servicio – Interfaz)
+## Descripción
 
-Programación contra interfaces
+Este proyecto implementa un sistema simple de inventario y compra de snacks desde consola.  
+Permite agregar productos al inventario, visualizarlos, comprarlos y generar un ticket final con el detalle del carrito y el total acumulado.
 
-Persistencia en archivo plano
+El diseño está organizado en capas para separar el modelo de dominio, la lógica de negocio y la interacción con el usuario.
 
-Manejo de memoria vs almacenamiento secundario
+## Funcionalidades
 
-Reconstrucción de objetos desde texto
+- Agregar snacks al inventario
+- Mostrar catálogo de snacks disponibles
+- Comprar snacks por nombre
+- Mantener un carrito de compra
+- Mostrar ticket final con el detalle de productos comprados
+- Calcular el total de la compra
+- Persistir inventario en archivo plano
+- Reconstruir objetos desde archivo al iniciar el sistema
 
-El objetivo fue refactorizar un sistema simple en memoria hacia un diseño más organizado y escalable.
+## Estructura del proyecto
 
-🏗️ Arquitectura
+- `dominio/Snack.java`: modelo del snack
+- `servicio/IServicioSnacks.java`: contrato de operaciones del sistema
+- `servicio/ServicioSnacksLista.java`: implementación en memoria usando listas
+- `servicio/ServiciosSnackArchivos.java`: implementación con persistencia en archivo
+- `presentacion/MaquinaSnacks.java`: menú e interacción con el usuario
+- `main.java`: punto de entrada de la aplicación
 
-El sistema está dividido en tres capas principales:
+## Conceptos aplicados
 
-1️⃣ Dominio
+- Programación orientada a objetos
+- Separación de responsabilidades
+- Arquitectura en capas
+- Programación contra interfaces
+- Persistencia en archivo plano
+- Reconstrucción de objetos desde texto
+- Manejo de colecciones con `ArrayList`
 
-Contiene las clases que representan el modelo del negocio.
+## Tecnologías utilizadas
 
-Ejemplo:
+- Java
+- Scanner
+- File / FileWriter / PrintWriter
+- Files / Paths
 
-Snack
+## Funcionamiento de la persistencia
 
-Carrito
+El sistema utiliza un archivo plano para almacenar los snacks del inventario.
 
-Reglas:
+- Al iniciar, verifica si el archivo existe
+- Si existe, lee su contenido y reconstruye objetos `Snack`
+- Si no existe, crea el archivo
+- Cada nuevo snack agregado también se guarda en el archivo
 
-No contiene Scanner
+El formato de persistencia se maneja manualmente, guardando cada snack como una línea de texto con nombre y precio.
 
-No contiene System.out
+## Objetivo del proyecto
 
-No maneja archivos
+Este proyecto fue desarrollado como práctica para aplicar conceptos de diseño en Java, especialmente separación por capas, desacoplamiento mediante interfaces y persistencia básica sin base de datos.
 
-Solo representa datos y comportamiento propio
+## Posibles mejoras
 
-2️⃣ Servicio
+- Reemplazar archivo plano por JSON
+- Reescribir completamente el archivo para evitar inconsistencias
+- Mejorar el manejo de errores y validaciones
+- Separar aún más la lógica del ticket
+- Incorporar pruebas unitarias
+- Migrar la persistencia a una base de datos
 
-Contiene la lógica de negocio.
+## Estado
 
-Ejemplo:
-
-agregarSnack
-
-comprarSnack
-
-calcularTotal
-
-Reglas:
-
-No contiene Scanner
-
-No contiene System.out
-
-No interactúa directamente con el usuario
-
-Trabaja con objetos del dominio
-
-Se programa contra una interfaz:
-
-IServicioSnacks inventario = new ServiciosSnackArchivos();
-
-La interfaz define el contrato.
-La implementación define cómo se ejecutan las operaciones.
-
-Esto permite cambiar la persistencia (lista, archivo, MySQL) sin modificar la UI.
-
-3️⃣ Interfaz (UI)
-
-Es la capa que interactúa con el usuario.
-
-Contiene:
-
-Scanner
-
-System.out
-
-Menú
-
-Reglas:
-
-No contiene lógica de negocio
-
-Solo entrada y salida
-
-📦 Persistencia con Archivo
-
-Se implementó una clase ServiciosSnackArchivos que:
-
-Crea el archivo si no existe
-
-Carga datos en memoria al iniciar
-
-Persiste cambios en el archivo
-
-🔹 Flujo de Persistencia
-Al iniciar el sistema
-
-Se verifica si el archivo existe.
-
-Si no existe → se crea.
-
-Si existe → se leen las líneas y se reconstruyen los objetos Snack.
-
-🔹 Escritura en archivo
-
-Se utiliza:
-
-new FileWriter(archivo, true);
-
-Modo append para no sobrescribir el contenido.
-
-Se guarda en formato estructurado:
-
-queso,78.0
-peperina,89.0
-
-No se utiliza toString() para persistencia, ya que está pensado para presentación, no almacenamiento.
-
-📖 Lectura de Archivo Plano
-
-Para reconstruir objetos:
-
-List<String> lineas = Files.readAllLines(Paths.get(nombreArchivo));
-
-Luego:
-
-String[] partes = linea.split(",");
-String nombre = partes[0].trim();
-double precio = Double.parseDouble(partes[1].trim());
-Snack snack = new Snack(nombre, precio);
-
-Proceso:
-
-Archivo → String → Separación → Conversión → Objeto
-
-Esto se denomina deserialización manual.
-
-🧠 Manejo de Memoria
-
-En este sistema:
-
-La memoria (RAM) es el estado activo.
-
-El archivo es persistencia secundaria.
-
-A diferencia de MySQL, el archivo no es un motor transaccional.
-Por lo tanto, se requiere sincronización manual entre memoria y almacenamiento.
-
-📌 Diferencia con Base de Datos
-
-Con MySQL:
-
-La base de datos es la fuente de verdad.
-
-No es necesario mantener toda la información en memoria.
-
-Se trabaja directamente contra el motor de BD.
-
-Con archivo plano:
-
-Se debe cargar la información en memoria.
-
-El archivo solo almacena datos.
-
-No hay manejo automático de transacciones ni consistencia.
-
-⚠️ Problemas Identificados Durante el Desarrollo
-
-Duplicación de datos al leer archivo múltiples veces.
-
-Creación innecesaria de objetos duplicados.
-
-Mezcla de lógica de negocio con presentación.
-
-Uso incorrecto de toString() para persistencia.
-
-Necesidad de limpiar espacios con trim() al parsear.
-
-🎯 Conceptos Aplicados
-
-Separación de responsabilidades
-
-Programación contra interfaces
-
-Encapsulación
-
-Desacoplamiento
-
-Persistencia básica en archivo
-
-Reconstrucción de objetos desde texto
-
-Manejo de memoria vs almacenamiento secundario
-
-🚀 Posibles Mejoras Futuras
-
-Migrar persistencia a JSON usando Jackson o Gson
-
-Implementar reescritura completa del archivo en lugar de append
-
-Agregar manejo de excepciones más robusto
-
-Agregar pruebas unitarias
-
-Migrar a base de datos relacional
-
-Implementar patrón DAO
-
-📚 Aprendizajes Clave
-
-La memoria es el estado activo; el archivo es persistencia.
-
-Nunca usar toString() como formato de almacenamiento.
-
-La interfaz define el contrato; la implementación define el comportamiento.
-
-El dominio no debe depender de la interfaz.
-
-La UI no debe contener lógica de negocio.
+Proyecto funcional de práctica, orientado al aprendizaje de arquitectura básica y persistencia en Java.
